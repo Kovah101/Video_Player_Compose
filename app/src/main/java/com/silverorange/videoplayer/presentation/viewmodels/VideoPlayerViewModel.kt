@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.silverorange.videoplayer.data.models.Author
 import com.silverorange.videoplayer.data.models.VideoData
 import com.silverorange.videoplayer.domain.VideoRepository
+import com.silverorange.videoplayer.presentation.events.VideoPlayerEvents
 import com.silverorange.videoplayer.presentation.states.VideoPlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-interface VideoPlayerEvents {
-    fun nextVideo ()
-    fun previousVideo ()
-}
 
 @HiltViewModel
 class VideoPlayerViewModel @Inject constructor(
