@@ -69,6 +69,7 @@ dependencies {
 
     // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer:$exoPlayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer-hls:$exoPlayerVersion"
 
     // Markwon
     implementation "io.noties.markwon:core:$markwonVersion"

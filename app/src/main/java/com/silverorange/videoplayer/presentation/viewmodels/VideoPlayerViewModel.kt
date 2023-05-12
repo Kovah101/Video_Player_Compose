@@ -8,7 +8,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class VideoPlayerViewModel : ViewModel() {
+
+interface VideoPlayerEvents {
+    fun nextVideo ()
+    fun previousVideo ()
+}
+
+class VideoPlayerViewModel : ViewModel(), VideoPlayerEvents {
 
     companion object {
         private val TAG = VideoPlayerViewModel::class.java.simpleName
@@ -19,6 +25,26 @@ class VideoPlayerViewModel : ViewModel() {
 
     init {
         setStateWithDummyData()
+    }
+
+    override fun nextVideo() {
+        if (_state.value.selectedVideoIndex < _state.value.videos.size - 1) {
+            _state.update {
+                it.copy(
+                    selectedVideoIndex = it.selectedVideoIndex + 1
+                )
+            }
+        }
+    }
+
+    override fun previousVideo() {
+        if (_state.value.selectedVideoIndex > 0) {
+            _state.update {
+                it.copy(
+                    selectedVideoIndex = it.selectedVideoIndex - 1
+                )
+            }
+        }
     }
 
     private fun setStateWithDummyData() {
