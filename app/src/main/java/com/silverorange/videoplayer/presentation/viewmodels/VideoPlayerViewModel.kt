@@ -1,12 +1,18 @@
 package com.silverorange.videoplayer.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.silverorange.videoplayer.data.models.Author
 import com.silverorange.videoplayer.data.models.VideoData
+import com.silverorange.videoplayer.domain.VideoRepository
 import com.silverorange.videoplayer.presentation.states.VideoPlayerState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 interface VideoPlayerEvents {
@@ -14,7 +20,10 @@ interface VideoPlayerEvents {
     fun previousVideo ()
 }
 
-class VideoPlayerViewModel : ViewModel(), VideoPlayerEvents {
+@HiltViewModel
+class VideoPlayerViewModel @Inject constructor(
+    private val videoRepository: VideoRepository
+) : ViewModel(), VideoPlayerEvents {
 
     companion object {
         private val TAG = VideoPlayerViewModel::class.java.simpleName
@@ -24,7 +33,8 @@ class VideoPlayerViewModel : ViewModel(), VideoPlayerEvents {
     val state = _state.asStateFlow()
 
     init {
-        setStateWithDummyData()
+        //setStateWithDummyData()
+        retrieveVideoList()
     }
 
     override fun nextVideo() {
@@ -45,6 +55,27 @@ class VideoPlayerViewModel : ViewModel(), VideoPlayerEvents {
                 )
             }
         }
+    }
+
+    private fun retrieveVideoList() {
+        viewModelScope.launch {
+            videoRepository.getVideoList().onSuccess {
+                Log.d(TAG, "retrieveVideoList: $it")
+                sortVideosByDate(it)
+            }.onFailure {
+                Log.e(TAG, "error in retrieveVideoList: ", it)
+            }
+        }
+    }
+
+    private fun sortVideosByDate(videos: List<VideoData>) {
+        _state.update {
+            it.copy(
+                videos = videos.sortedByDescending { it.publishedAt },
+                selectedVideoIndex = 0
+            )
+        }
+        Log.d(TAG, "sortVideosByDate: ${_state.value.videos}")
     }
 
     private fun setStateWithDummyData() {
