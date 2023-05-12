@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
 interface VideoService {
@@ -21,7 +22,9 @@ interface VideoService {
         val videoService: VideoService by lazy {
             val builder = Retrofit.Builder()
                 .baseUrl(BuildConfig.VIDEO_API_URL)
-                .addConverterFactory(NonStrictJsonSerializer.serializer.asConverterFactory("application/json".toMediaType()))
+                .addConverterFactory(GsonConverterFactory.create())
+                //.addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+               // .addConverterFactory(NonStrictJsonSerializer.serializer.asConverterFactory("application/json".toMediaType()))
                 .client(httpClient)
                 .build()
 

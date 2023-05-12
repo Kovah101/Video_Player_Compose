@@ -68,7 +68,8 @@ class VideoPlayerViewModel @Inject constructor(
         _state.update {
             it.copy(
                 videos = videos.sortedByDescending { it.publishedAt },
-                selectedVideoIndex = 0
+                selectedVideoIndex = 0,
+                isLoading = false
             )
         }
         Log.d(TAG, "sortVideosByDate: ${_state.value.videos}")

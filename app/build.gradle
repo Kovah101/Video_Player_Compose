@@ -17,7 +17,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField 'String', 'VIDEO_API_URL', '"http://localhost:4000/videos/"'
+        buildConfigField 'String', 'VIDEO_API_URL', '"https://localhost:4000/videos/"'
     }
 
     buildTypes {
@@ -89,6 +89,7 @@ dependencies {
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
 
     // kotlinx Serialization
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0"
