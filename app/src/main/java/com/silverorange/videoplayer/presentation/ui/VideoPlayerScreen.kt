@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -78,15 +79,15 @@ fun VideoPlayerScreen(
         }
     ) {
         if (state.isLoading) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "No videos found",
-                style = MaterialTheme.typography.h5.copy(
-                    color = colorResource(id = R.color.black),
-                    textAlign = TextAlign.Center
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(150.dp),
                 )
-            )
+            }
         } else {
+            if (state.videos.isNotEmpty()) {
             Column {
 
                 VideoPlayer(
@@ -102,8 +103,17 @@ fun VideoPlayerScreen(
                     description = state.videos[state.selectedVideoIndex].description
                 )
             }
+        } else {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "No videos found",
+                    style = MaterialTheme.typography.h5.copy(
+                        color = colorResource(id = R.color.black),
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
         }
-
     }
 }
 
