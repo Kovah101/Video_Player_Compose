@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
@@ -27,8 +28,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.DisposableEffectResult
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,17 +41,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.halilibo.richtext.markdown.Markdown
-import com.halilibo.richtext.ui.RichText
-import com.halilibo.richtext.ui.RichTextStyle
+
 import com.silverorange.videoplayer.R
+import com.silverorange.videoplayer.presentation.ui.components.VideoDescription
+import com.silverorange.videoplayer.presentation.ui.components.VideoPlayer
 import com.silverorange.videoplayer.presentation.viewmodels.VideoPlayerViewModel
 
 @Composable
@@ -109,205 +105,5 @@ fun VideoPlayerScreen(
         }
 
     }
-
 }
-
-@Composable
-fun VideoPlayer(
-    videoUrl: String,
-    context: Context,
-    previousClicked: () -> Unit,
-    nextClicked: () -> Unit
-) {
-    Log.d("VideoTest", "VideoPlayerUrl: $videoUrl")
-
-    val exoPlayer = ExoPlayer.Builder(context)
-        .build()
-        .also { exoPlayer ->
-            val videoItem = MediaItem.Builder()
-                .setUri(videoUrl)
-                .setMediaId("Url = $videoUrl")
-                .build()
-            Log.d("VideoTest", "VideoItem url: ${videoItem.mediaId} ")
-            exoPlayer.addMediaItem(videoItem)
-            exoPlayer.prepare()
-        }
-
-    var showControls by remember { mutableStateOf(false) }
-
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-    ) {
-
-        DisposableEffect(key1 = Unit) {
-            onDispose { exoPlayer.release() }
-        }
-
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .align(Alignment.Center)
-                    .clickable {
-                        showControls = showControls.not()
-                    },
-                factory = {
-                    StyledPlayerView(context).apply {
-                        player = exoPlayer
-                        useController = false
-                    }
-                })
-
-
-        VideoControls(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .align(Alignment.Center),
-            isVisible = { showControls },
-            onPreviousClick = { previousClicked() },
-            onPauseToggle = {
-                if (exoPlayer.isPlaying) {
-                    exoPlayer.pause()
-                } else {
-                    exoPlayer.play()
-                }
-            },
-            onNextClick = { nextClicked() }
-        )
-    }
-
-}
-
-@Composable
-fun VideoDescription(
-    title: String,
-    author: String,
-    description: String
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .verticalScroll(rememberScrollState()),
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.h5.copy(
-                color = colorResource(id = R.color.black),
-            )
-        )
-        Text(
-            text = author,
-            style = MaterialTheme.typography.h6.copy(
-                color = colorResource(id = R.color.black),
-            )
-        )
-        RichText(
-            style = RichTextStyle()
-        ) {
-            Markdown(content = description)
-        }
-    }
-}
-
-@Composable
-fun VideoControls(
-    modifier: Modifier = Modifier,
-    isVisible: () -> Boolean,
-    onPreviousClick: () -> Unit,
-    onPauseToggle: () -> Unit,
-    onNextClick: () -> Unit
-) {
-    val isControlsVisible = remember(isVisible()) { isVisible() }
-
-    var play by remember { mutableStateOf(false) }
-
-    AnimatedVisibility(
-        modifier = modifier,
-        visible = isControlsVisible,
-        enter = fadeIn(),
-        exit = fadeOut(),
-    ) {
-
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            IconButton(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .background(colorResource(id = R.color.white))
-                    .border(
-                        width = 2.dp,
-                        color = colorResource(id = R.color.black),
-                        shape = CircleShape
-                    ),
-                onClick = onPreviousClick,
-            ) {
-                Image(
-                    modifier = Modifier.size(40.dp),
-                    contentScale = ContentScale.Crop,
-                    painter = painterResource(id = R.drawable.previous),
-                    contentDescription = "Previous video"
-                )
-            }
-
-            IconButton(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(colorResource(id = R.color.white))
-                    .border(
-                        width = 2.dp,
-                        color = colorResource(id = R.color.black),
-                        shape = CircleShape
-                    ),
-                onClick = {
-                    onPauseToggle()
-                    play = !play
-                }
-            ) {
-                Image(
-                    modifier = Modifier.size(60.dp),
-                    contentScale = ContentScale.Crop,
-                    painter =
-                    if (play) {
-                        painterResource(id = R.drawable.pause)
-                    } else {
-                        painterResource(id = R.drawable.play)
-                    },
-                    contentDescription = "Play/Pause"
-                )
-            }
-
-            IconButton(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .background(colorResource(id = R.color.white))
-                    .border(
-                        width = 2.dp,
-                        color = colorResource(id = R.color.black),
-                        shape = CircleShape
-                    ),
-                onClick = onNextClick
-            ) {
-                Image(
-                    modifier = Modifier.size(40.dp),
-                    contentScale = ContentScale.Crop,
-                    painter = painterResource(id = R.drawable.next),
-                    contentDescription = "Next Video"
-                )
-            }
-        }
-    }
-}
-
 
