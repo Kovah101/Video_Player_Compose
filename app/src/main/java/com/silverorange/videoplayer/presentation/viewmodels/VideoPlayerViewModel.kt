@@ -29,8 +29,8 @@ class VideoPlayerViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        setStateWithDummyData()
-        //retrieveVideoList()
+       // setStateWithDummyData()
+        retrieveVideoList()
     }
 
     override fun nextVideo() {
@@ -67,7 +67,7 @@ class VideoPlayerViewModel @Inject constructor(
     private fun sortVideosByDate(videos: List<VideoData>) {
         _state.update {
             it.copy(
-                videos = videos.sortedByDescending { it.publishedAt },
+                videos = videos.sortedByDescending { it.publishedAt }, //TODO test this
                 selectedVideoIndex = 0,
                 isLoading = false
             )

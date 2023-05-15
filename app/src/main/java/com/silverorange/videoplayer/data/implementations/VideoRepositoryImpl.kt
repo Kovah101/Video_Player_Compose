@@ -20,7 +20,8 @@ class VideoRepositoryImpl @Inject constructor (
     override suspend fun getVideoList(): Result<List<VideoData>> {
         val response = videoService.getVideos()
         return if (response.isSuccessful) {
-            Result.success(response.body()?.data?.map { it.toModel() } ?: emptyList())
+            Log.d(TAG, "getVideoList: ${response.body()}")
+            Result.success(response.body()?.map { it.toModel() } ?: emptyList())
         } else {
             Log.e(TAG, "getVideoList error ${response.errorBody()}", )
             Result.failure(Throwable(response.message()))
