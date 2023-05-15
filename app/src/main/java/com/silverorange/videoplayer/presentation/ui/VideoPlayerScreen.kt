@@ -53,17 +53,28 @@ fun VideoPlayerScreen(
                 )
         }
     ) {
-        Column {
-            VideoPlayer(
-                videoUrl = state.videos[state.selectedVideoIndex].hlsUrl,
-                context = context
+        if (state.isLoading) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "No videos found",
+                style = MaterialTheme.typography.h5.copy(
+                    color = colorResource(id = R.color.black),
+                    textAlign = TextAlign.Center
+                )
             )
+        } else {
+            Column {
+                VideoPlayer(
+                    videoUrl = state.videos[state.selectedVideoIndex].hlsUrl,
+                    context = context
+                )
 
-            VideoDescription(
-                title = state.videos[state.selectedVideoIndex].title,
-                author = state.videos[state.selectedVideoIndex].author.name,
-                description = state.videos[state.selectedVideoIndex].description
-            )
+                VideoDescription(
+                    title = state.videos[state.selectedVideoIndex].title,
+                    author = state.videos[state.selectedVideoIndex].author.name,
+                    description = state.videos[state.selectedVideoIndex].description
+                )
+            }
         }
 
     }

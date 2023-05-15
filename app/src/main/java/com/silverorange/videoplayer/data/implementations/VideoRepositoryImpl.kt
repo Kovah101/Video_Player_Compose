@@ -20,7 +20,7 @@ class VideoRepositoryImpl @Inject constructor (
     override suspend fun getVideoList(): Result<List<VideoData>> {
         val response = videoService.getVideos()
         return if (response.isSuccessful) {
-            Result.success(response.body()?.data?.map { it.toModel() } ?: emptyList())
+            Result.success(response.body()?.map { it.toModel() } ?: emptyList())
         } else {
             Log.e(TAG, "getVideoList error ${response.errorBody()}", )
             Result.failure(Throwable(response.message()))
@@ -31,8 +31,8 @@ class VideoRepositoryImpl @Inject constructor (
         id = id,
         title = title,
         description = description,
-        hlsUrl = hlsUrl,
-        fullUrl = fullUrl,
+        hlsUrl = hlsURL,
+        fullUrl = fullURL,
         publishedAt = publishedAt,
         author = author.toModel()
     )

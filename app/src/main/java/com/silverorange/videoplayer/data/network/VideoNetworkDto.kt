@@ -13,8 +13,8 @@ data class VideoDto(
     @SerialName("id") val id: String,
     @SerialName("title") val title: String,
     @SerialName("description") val description: String,
-    @SerialName("hlsURL") val hlsUrl: String,
-    @SerialName("fullURL") val fullUrl: String,
+    @SerialName("hlsURL") val hlsURL: String,
+    @SerialName("fullURL") val fullURL: String,
     @SerialName("published_at") val publishedAt: String,
     @SerialName("author") val author: AuthorDto
 )
