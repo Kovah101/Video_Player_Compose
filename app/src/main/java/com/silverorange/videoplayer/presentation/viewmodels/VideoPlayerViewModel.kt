@@ -65,7 +65,7 @@ class VideoPlayerViewModel @Inject constructor(
     private fun sortVideosByDate(videos: List<VideoData>) {
         _state.update {
             it.copy(
-                videos = videos.sortedByDescending { video -> video.publishedAt },
+                videos = videos.sortedByDescending { video -> video.publishedAt }, //sorted newest first
                 selectedVideoIndex = 0,
                 isLoading = false
             )
