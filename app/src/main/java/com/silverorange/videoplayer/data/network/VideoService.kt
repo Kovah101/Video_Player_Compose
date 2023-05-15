@@ -37,26 +37,14 @@ interface VideoService {
             addInterceptor(HttpInterceptor()) }
             .build()
 
-        @OptIn(ExperimentalSerializationApi::class)
         val videoService: VideoService by lazy {
             val builder = Retrofit.Builder()
                 .baseUrl(BuildConfig.VIDEO_API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                //.addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-               // .addConverterFactory(NonStrictJsonSerializer.serializer.asConverterFactory("application/json".toMediaType()))
                 .client(httpClient)
                 .build()
 
             builder.create(VideoService::class.java)
-        }
-    }
-
-    object NonStrictJsonSerializer {
-        val serializer = Json {
-            isLenient = true
-            ignoreUnknownKeys = true
-            allowSpecialFloatingPointValues = true
-            useArrayPolymorphism = true
         }
     }
 
