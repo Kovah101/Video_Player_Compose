@@ -41,6 +41,6 @@ interface VideoService {
         }
     }
 
-    @GET("/")
+    @GET("videos/")
     suspend fun getVideos(): Response<VideoResponse>
 }
