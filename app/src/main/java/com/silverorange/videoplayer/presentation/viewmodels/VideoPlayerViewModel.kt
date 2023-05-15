@@ -29,7 +29,7 @@ class VideoPlayerViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-       // setStateWithDummyData()
+        sortListByDate()
         retrieveVideoList()
     }
 
@@ -51,6 +51,12 @@ class VideoPlayerViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private fun sortListByDate(){
+        val dates = listOf("2018-12-14T21:09:00.000Z", "2019-12-15T22:17:00.000Z", "2019-12-15T09:15:00.000Z", "2020-12-15T09:15:00.000Z")
+        val sortedDates = dates.sortedByDescending { it }
+        Log.d(TAG, "sortListByDate: $sortedDates")
     }
 
     private fun retrieveVideoList() {
