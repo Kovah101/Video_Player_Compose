@@ -49,6 +49,7 @@ dependencies {
     final def okhttpVersion = '4.10.0'
     final def retrofitVersion = '2.9.0'
     final def hiltVersion = '2.44.2'
+    final def richTextVersion = '0.16.0'
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
@@ -79,7 +80,7 @@ dependencies {
     implementation "com.google.android.exoplayer:exoplayer-hls:$exoPlayerVersion"
 
     // Markwon
-    implementation "io.noties.markwon:core:$markwonVersion"
+    implementation "com.halilibo.compose-richtext:richtext-commonmark:${richTextVersion}"
 
     // Gson
     implementation "com.google.code.gson:gson:$gsonVersion"

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +27,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.DisposableEffectResult
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +49,9 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.RichText
+import com.halilibo.richtext.ui.RichTextStyle
 import com.silverorange.videoplayer.R
 import com.silverorange.videoplayer.presentation.viewmodels.VideoPlayerViewModel
 
@@ -122,16 +126,12 @@ fun VideoPlayer(
         .also { exoPlayer ->
             val videoItem = MediaItem.Builder()
                 .setUri(videoUrl)
+                .setMediaId("Url = $videoUrl")
                 .build()
-            exoPlayer.setMediaItem(videoItem)
+            Log.d("VideoTest", "VideoItem url: ${videoItem.mediaId} ")
+            exoPlayer.addMediaItem(videoItem)
             exoPlayer.prepare()
         }
-
-    var isPlaying by remember { mutableStateOf(exoPlayer.isPlaying) }
-    Log.d(
-        "VideoTest",
-        "VideoPlayer: exoplayer.isPlaying: ${exoPlayer.isPlaying}, isPlaying: $isPlaying"
-    )
 
     var showControls by remember { mutableStateOf(false) }
 
@@ -146,20 +146,20 @@ fun VideoPlayer(
             onDispose { exoPlayer.release() }
         }
 
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .align(Alignment.Center)
-                .clickable {
-                    showControls = showControls.not()
-                },
-            factory = {
-                StyledPlayerView(context).apply {
-                    player = exoPlayer
-                    useController = false
-                }
-            })
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .align(Alignment.Center)
+                    .clickable {
+                        showControls = showControls.not()
+                    },
+                factory = {
+                    StyledPlayerView(context).apply {
+                        player = exoPlayer
+                        useController = false
+                    }
+                })
 
 
         VideoControls(
@@ -206,12 +206,11 @@ fun VideoDescription(
                 color = colorResource(id = R.color.black),
             )
         )
-        Text(
-            text = description,
-            style = MaterialTheme.typography.body1.copy(
-                color = colorResource(id = R.color.black),
-            )
-        )
+        RichText(
+            style = RichTextStyle()
+        ) {
+            Markdown(content = description)
+        }
     }
 }
 
