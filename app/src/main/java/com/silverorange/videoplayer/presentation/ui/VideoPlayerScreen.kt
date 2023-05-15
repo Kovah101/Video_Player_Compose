@@ -2,9 +2,13 @@ package com.silverorange.videoplayer.presentation.ui
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +46,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.silverorange.videoplayer.R
 import com.silverorange.videoplayer.presentation.viewmodels.VideoPlayerViewModel
@@ -122,28 +127,39 @@ fun VideoPlayer(
             exoPlayer.prepare()
         }
 
-    var isPlaying by remember { mutableStateOf(false) }
-    Log.d("VideoTest", "VideoPlayer: isPlaying: $isPlaying")
+    var isPlaying by remember { mutableStateOf(exoPlayer.isPlaying) }
+    Log.d(
+        "VideoTest",
+        "VideoPlayer: exoplayer.isPlaying: ${exoPlayer.isPlaying}, isPlaying: $isPlaying"
+    )
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(300.dp)) {
+    var showControls by remember { mutableStateOf(false) }
 
-        DisposableEffect(
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .align(Alignment.Center),
-                factory = {
-                    StyledPlayerView(context).apply {
-                        player = exoPlayer
-                        useController = false
-                    }
-                })
-        ) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
+
+        DisposableEffect(key1 = Unit) {
             onDispose { exoPlayer.release() }
         }
+
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .align(Alignment.Center)
+                .clickable {
+                    showControls = showControls.not()
+                },
+            factory = {
+                StyledPlayerView(context).apply {
+                    player = exoPlayer
+                    useController = false
+                }
+            })
 
 
         VideoControls(
@@ -151,17 +167,16 @@ fun VideoPlayer(
                 .fillMaxWidth()
                 .height(300.dp)
                 .align(Alignment.Center),
-            isPlaying =  isPlaying ,
+            isVisible = { showControls },
             onPreviousClick = { previousClicked() },
             onPauseToggle = {
-                            if (exoPlayer.isPlaying) {
-                                exoPlayer.pause()
-                            } else {
-                                exoPlayer.play()
-                            }
-                isPlaying = isPlaying.not()
+                if (exoPlayer.isPlaying) {
+                    exoPlayer.pause()
+                } else {
+                    exoPlayer.play()
+                }
             },
-        onNextClick = { nextClicked() }
+            onNextClick = { nextClicked() }
         )
     }
 
@@ -203,18 +218,27 @@ fun VideoDescription(
 @Composable
 fun VideoControls(
     modifier: Modifier = Modifier,
-    isPlaying:  Boolean,
+    isVisible: () -> Boolean,
     onPreviousClick: () -> Unit,
     onPauseToggle: () -> Unit,
     onNextClick: () -> Unit
 ) {
-    //val isVideoPlaying = remember(isPlaying()) { isPlaying() }
-    Log.d("VideoTest", "VideoControls: isPlaying: $isPlaying")
+    val isControlsVisible = remember(isVisible()) { isVisible() }
 
-    Row(modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+    var play by remember { mutableStateOf(false) }
+
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = isControlsVisible,
+        enter = fadeIn(),
+        exit = fadeOut(),
     ) {
+
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             IconButton(
                 modifier = Modifier
@@ -222,9 +246,10 @@ fun VideoControls(
                     .clip(CircleShape)
                     .background(colorResource(id = R.color.white))
                     .border(
-                        width = 1.dp,
+                        width = 2.dp,
                         color = colorResource(id = R.color.black),
-                        shape = CircleShape),
+                        shape = CircleShape
+                    ),
                 onClick = onPreviousClick,
             ) {
                 Image(
@@ -235,47 +260,55 @@ fun VideoControls(
                 )
             }
 
-        IconButton(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(colorResource(id = R.color.white))
-                .border(
-                    width = 1.dp,
-                    color = colorResource(id = R.color.black),
-                    shape = CircleShape),
-            onClick = onPauseToggle) {
-            Image(
-                modifier = Modifier.size(60.dp),
-                contentScale = ContentScale.Crop,
-                painter =
-                if (isPlaying) {
-                    painterResource(id = R.drawable.pause)
-                } else {
-                    painterResource(id = R.drawable.play)
-                },
-                contentDescription = "Play/Pause"
-            )
-        }
+            IconButton(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(colorResource(id = R.color.white))
+                    .border(
+                        width = 2.dp,
+                        color = colorResource(id = R.color.black),
+                        shape = CircleShape
+                    ),
+                onClick = {
+                    onPauseToggle()
+                    play = !play
+                }
+            ) {
+                Image(
+                    modifier = Modifier.size(60.dp),
+                    contentScale = ContentScale.Crop,
+                    painter =
+                    if (play) {
+                        painterResource(id = R.drawable.pause)
+                    } else {
+                        painterResource(id = R.drawable.play)
+                    },
+                    contentDescription = "Play/Pause"
+                )
+            }
 
-        IconButton(
-            modifier = Modifier
-                .size(60.dp)
-                .clip(CircleShape)
-                .background(colorResource(id = R.color.white))
-                .border(
-                    width = 1.dp,
-                    color = colorResource(id = R.color.black),
-                    shape = CircleShape),
-            onClick = onNextClick
-        ) {
-            Image(
-                modifier = Modifier.size(40.dp),
-                contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.next),
-                contentDescription = "Next Video"
-            )
+            IconButton(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .background(colorResource(id = R.color.white))
+                    .border(
+                        width = 2.dp,
+                        color = colorResource(id = R.color.black),
+                        shape = CircleShape
+                    ),
+                onClick = onNextClick
+            ) {
+                Image(
+                    modifier = Modifier.size(40.dp),
+                    contentScale = ContentScale.Crop,
+                    painter = painterResource(id = R.drawable.next),
+                    contentDescription = "Next Video"
+                )
+            }
         }
     }
 }
+
 
